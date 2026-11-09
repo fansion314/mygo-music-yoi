@@ -1,0 +1,34 @@
+{
+  "id": "world.fansionia.mygo-music-yoi",
+  "name": "You Own It",
+  "version": "0.1.1",
+  "minAppVersion": "0.1.22",
+  "main": "index.js",
+  "playback": "stream",
+  "permissions": {
+    "network": [
+      "music.163.com",
+      "interfacepc.music.163.com",
+      "*.music.126.net",
+      "*.music.163.com",
+      "*.music.163.net",
+      "*.music.126.com"
+    ]
+  },
+  "settings": [
+    {
+      "key": "quality",
+      "label": "Audio Quality",
+      "help": "auto (follow app), standard, higher, exhigh, lossless, or hires. Existing cached audio is managed by the app."
+    }
+  ],
+  "navigation": [
+    { "builtin": "home" },
+    { "title": "Charts", "page": "charts", "icon": "chart" },
+    { "builtin": "liked" },
+    { "builtin": "stations" },
+    { "builtin": "shows" },
+    { "title": "Discover Podcasts", "page": "podcasts", "icon": "podcast" },
+    { "title": "More", "page": "more", "icon": "star" }
+  ]
+}
