@@ -476,7 +476,8 @@ func TestYOIStreamCoalescingAndRiskCooldown(t *testing.T) {
 }
 
 // Optional post-publication check uses the same release discovery, asset
-// selection and installer as the client, anonymously against real GitHub.
+// selection and installer as the client. It tries public anonymous access
+// first, then uses the client's normal token path only for GitHub's rate limit.
 func TestYOIGitHubInstall(t *testing.T) {
 	repo, root := os.Getenv("YOI_GITHUB_REPO"), os.Getenv("YOI_PLUGIN_DIR")
 	if repo == "" || root == "" {
@@ -500,10 +501,19 @@ func TestYOIGitHubInstall(t *testing.T) {
 	SetAppVersion("0.1.22")
 	t.Cleanup(func() { SetAppVersion("") })
 	release, err := Latest(parsed)
+	if err != nil && err.Error() == "GitHub says to slow down; try again in a while" && oldToken() != "" {
+		t.Log("Anonymous GitHub rate limit reached; checking installation through the client's normal authenticated path")
+		githubToken = oldToken
+		release, err = Latest(parsed)
+	}
 	if err != nil {
 		t.Fatal("discover public release:", err)
 	}
-	if strings.TrimPrefix(release.Version, "v") != expected.Version || !strings.HasSuffix(strings.Split(release.url, "?")[0], ".zip") || !strings.Contains(release.url, "/releases/download/") {
+	// An authenticated client fetches an asset through its API address rather
+	// than browser_download_url. Either must be a release asset, never zipball.
+	publicZIP := strings.HasSuffix(strings.Split(release.url, "?")[0], ".zip") && strings.Contains(release.url, "/releases/download/")
+	apiAsset := strings.HasPrefix(release.url, githubAPI+"/repos/"+parsed+"/releases/assets/")
+	if strings.TrimPrefix(release.Version, "v") != expected.Version || (!publicZIP && !apiAsset) {
 		t.Fatalf("client did not choose the versioned ZIP release: %+v", release)
 	}
 	plugins, work, data := t.TempDir(), t.TempDir(), t.TempDir()

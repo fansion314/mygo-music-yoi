@@ -49,7 +49,9 @@ await copyFile(
 );
 console.log(`Testing YOI in MyGo Music 0.1.22 (${commit.slice(0, 12)})`);
 if (process.env.YOI_GITHUB_REPO) {
-  console.log(`Also checking anonymous client installation from ${process.env.YOI_GITHUB_REPO}`);
+  console.log(
+    `Also checking public client installation from ${process.env.YOI_GITHUB_REPO} (anonymous first)`,
+  );
 }
 run("go", ["test", "./internal/plugin", "-run", "^TestYOI", "-count=1", "-v"], {
   cwd: checkout,
